@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#667eea">
+    <title>ERCHFlorist - Papan Ucapan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.95;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: white;
+            margin: 15px;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .balance-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .balance-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-right: 12px;
+        }
+
+        .balance-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .balance-amount {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .balance-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .balance-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .balance-item-label {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .balance-item-value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .income-value { color: #10b981; }
+        .expense-value { color: #ef4444; }
+
+        /* Tabs */
+        .tabs-container {
+            background: white;
+            margin: 15px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .tabs-header {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            background: #f8f9fa;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-button {
+            padding: 15px 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tab-button:active {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .tab-icon {
+            font-size: 1.5em;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Forms */
+        .form-section {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Quick Amount Buttons */
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .quick-amount-btn {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: white;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-amount-btn:active {
+            transform: scale(0.95);
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            margin-top: 10px;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .alert-info {
+            background: #e0f2fe;
+            border: 1px solid #7dd3fc;
+            color: #075985;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            color: #92400e;
+        }
+
+        /* Config Section */
+        .config-card {
+            background: #d1fae5;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #6ee7b7;
+        }
+
+        .config-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .url-display {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.75em;
+            word-break: break-all;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            .balance-amount {
+                font-size: 2.5em;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            body {
+                padding-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌸 ERCHFlorist</h1>
+            <p>Penjualan Papan Ucapan</p>
+        </div>
+
+        <!-- Balance Card (Always Visible) -->
+        <div class="balance-card">
+            <div class="balance-header">
+                <div class="balance-icon">💰</div>
+                <div class="balance-title">Jumlah Uang</div>
+            </div>
+            <div class="balance-amount" id="totalBalance">Rp 0</div>
+            <div class="balance-details">
+                <div class="balance-item">
+                    <div class="balance-item-label">Pemasukan</div>
+                    <div class="balance-item-value income-value" id="totalIncome">Rp 0</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-item-label">Pengeluaran</div>
+                    <div class="balance-item-value expense-value" id="totalExpense">Rp 0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-button active" onclick="openTab('pemasukan')">
+                    <span class="tab-icon">📈</span>
+                    <span>Masuk</span>
+                </button>
+                <button class="tab-button" onclick="openTab('pengeluaran')">
+                    <span class="tab-icon">📉</span>
+                    <span>Keluar</span>
+                </button>
+                <button class="tab-button" onclick="openTab('belanja')">
+                    <span class="tab-icon">🛒</span>
+                    <span>Belanja</span>
+                </button>
+                <button class="tab-button" onclick="openTab('data')">
+                    <span class="tab-icon">📊</span>
+                    <span>Data</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: Pemasukan -->
+            <div id="pemasukan" class="tab-content active">
+                <div class="form-section">
+                    <h3>📈 Penjualan Papan Ucapan</h3>
+                    <form id="incomeForm">
+                        <div class="form-group">
+                            <label>Jenis Papan</label>
+                            <select id="incomeDesc" required>
+                                <option value="">Pilih jenis...</option>
+                                <option value="Papan Ucapan Pernikahan">Papan Ucapan Pernikahan</option>
+                                <option value="Papan Ucapan Ulang Tahun">Papan Ucapan Ulang Tahun</option>
+                                <option value="Papan Ucapan Grand Opening">Papan Ucapan Grand Opening</option>
+                                <option value="Papan Ucapan Duka Cita">Papan Ucapan Duka Cita</option>
+                                <option value="Papan Ucapan Congratulation">Papan Ucapan Congratulation</option>
+                                <option value="Papan Ucapan Custom">Papan Ucapan Custom</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Harga (Rp)</label>
+                            <input type="number" id="incomeAmount" placeholder="0" required>
+                            <div class="quick-amounts">
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('incomeAmount', 150000)">150rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('incomeAmount', 200000)">200rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('incomeAmount', 250000)">250rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('incomeAmount', 300000)">300rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('incomeAmount', 400000)">400rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('incomeAmount', 500000)">500rb</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal</label>
+                            <input type="date" id="incomeDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            💾 Simpan Penjualan
+                        </button>
+                    </form>
+                </div>
+
+                <div class="alert alert-success">
+                    ✅ Terhubung dengan Google Sheets! Data akan tersimpan otomatis.
+                </div>
+            </div>
+
+            <!-- Tab 2: Pengeluaran -->
+            <div id="pengeluaran" class="tab-content">
+                <div class="form-section">
+                    <h3>📉 Pengeluaran</h3>
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label>Keterangan</label>
+                            <select id="expenseDesc" required>
+                                <option value="">Pilih jenis...</option>
+                                <option value="Beli Bunga">Beli Bunga</option>
+                                <option value="Biaya Pengiriman">Biaya Pengiriman</option>
+                                <option value="Biaya Operasional">Biaya Operasional</option>
+                                <option value="Gaji Karyawan">Gaji Karyawan</option>
+                                <option value="Sewa Tempat">Sewa Tempat</option>
+                                <option value="Listrik & Air">Listrik & Air</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah (Rp)</label>
+                            <input type="number" id="expenseAmount" placeholder="0" required>
+                            <div class="quick-amounts">
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('expenseAmount', 50000)">50rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('expenseAmount', 100000)">100rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('expenseAmount', 200000)">200rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('expenseAmount', 300000)">300rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('expenseAmount', 500000)">500rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('expenseAmount', 1000000)">1jt</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal</label>
+                            <input type="date" id="expenseDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger">
+                            💾 Simpan Pengeluaran
+                        </button>
+                    </form>
+                </div>
+
+                <div class="alert alert-success">
+                    ✅ Terhubung dengan Google Sheets! Data akan tersimpan otomatis.
+                </div>
+            </div>
+
+            <!-- Tab 3: Belanja -->
+            <div id="belanja" class="tab-content">
+                <div class="form-section">
+                    <h3>🛒 Belanja Bahan</h3>
+                    <form id="shoppingForm">
+                        <div class="form-group">
+                            <label>Item</label>
+                            <input type="text" id="shoppingItem" placeholder="Contoh: Bunga mawar merah" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah (Rp)</label>
+                            <input type="number" id="shoppingAmount" placeholder="0" required>
+                            <div class="quick-amounts">
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('shoppingAmount', 50000)">50rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('shoppingAmount', 100000)">100rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('shoppingAmount', 150000)">150rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('shoppingAmount', 200000)">200rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('shoppingAmount', 300000)">300rb</button>
+                                <button type="button" class="quick-amount-btn" onclick="setAmount('shoppingAmount', 500000)">500rb</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal</label>
+                            <input type="date" id="shoppingDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            💾 Simpan Belanja
+                        </button>
+                    </form>
+                </div>
+
+                <div class="alert alert-success">
+                    ✅ Terhubung dengan Google Sheets! Data akan tersimpan otomatis.
+                </div>
+            </div>
+
+            <!-- Tab 4: Data -->
+            <div id="data" class="tab-content">
+                <h3 style="margin-bottom: 15px; font-size: 1.1em;">📊 Status Koneksi</h3>
+
+                <!-- Config -->
+                <div class="config-card">
+                    <div class="config-header">
+                        ✅ Google Spreadsheet Terhubung
+                    </div>
+                    
+                    <div class="status-badge">
+                        <div class="status-dot"></div>
+                        <span>Siap Digunakan</span>
+                    </div>
+
+                    <div style="margin-top: 15px; font-size: 0.85em; color: #065f46;">
+                        <strong>Spreadsheet URL:</strong>
+                        <div class="url-display">https://docs.google.com/spreadsheets/d/1wdnUtUUBzbwFL-tztvsePpmIRvPKhrspu3gr1c9iXxk/</div>
+                    </div>
+
+                    <div style="margin-top: 10px; font-size: 0.85em; color: #065f46;">
+                        <strong>Web App URL:</strong>
+                        <div class="url-display">https://script.google.com/macros/s/AKfycbwQMqNGpDrorRrLIvgBHpphJ2H9K9EmXBeHB5TwOuXNJqHxlbmk10aHtGueWAK0nT5k/exec</div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <h4 style="margin: 20px 0 12px 0; font-size: 1em;">📈 Statistik</h4>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value" id="totalTransactions">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Penjualan</div>
+                        <div class="stat-value" id="incomeCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pengeluaran</div>
+                        <div class="stat-value" id="expenseCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Belanja</div>
+                        <div class="stat-value" id="shoppingCount">0</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="loadFromSheets()">
+                    🔄 Refresh Data dari Google Sheets
+                </button>
+                <button class="btn btn-secondary" onclick="openSpreadsheet()">
+                    📄 Buka Spreadsheet
+                </button>
+
+                <div class="alert alert-info" style="margin-top: 15px;">
+                    <strong>💡 Tips:</strong><br>
+                    • Klik "Refresh Data" untuk melihat data terbaru dari spreadsheet<br>
+                    • Data akan otomatis tersimpan saat Anda menambah transaksi<br>
+                    • Pastikan koneksi internet aktif saat menyimpan data
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PRE-CONFIGURED URLs
+        const config = {
+            spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/1wdnUtUUBzbwFL-tztvsePpmIRvPKhrspu3gr1c9iXxk/edit?gid=0#gid=0',
+            webAppUrl: 'https://script.google.com/macros/s/AKfycbwQMqNGpDrorRrLIvgBHpphJ2H9K9EmXBeHB5TwOuXNJqHxlbmk10aHtGueWAK0nT5k/exec'
+        };
+
+        // Data cache
+        let dataCache = {
+            income: [],
+            expense: [],
+            shopping: []
+        };
+
+        // Initialize
+        function init() {
+            setDefaultDates();
+            loadFromSheets(); // Auto-load data on startup
+        }
+
+        // Show toast notification
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // Open spreadsheet
+        function openSpreadsheet() {
+            window.open(config.spreadsheetUrl, '_blank');
+        }
+
+        // Set default dates
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('incomeDate').value = today;
+            document.getElementById('expenseDate').value = today;
+            document.getElementById('shoppingDate').value = today;
+        }
+
+        // Quick amount setter
+        function setAmount(fieldId, amount) {
+            document.getElementById(fieldId).value = amount;
+        }
+
+        // Tab switching
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.closest('.tab-button').classList.add('active');
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return 'Rp ' + amount.toLocaleString('id-ID');
+        }
+
+        // Send to Google Sheets
+        async function sendToSheets(type, data) {
+            try {
+                const response = await fetch(config.webAppUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: type,
+                        date: data.date,
+                        description: data.description,
+                        amount: data.amount
+                    })
+                });
+
+                return true;
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Gagal menyimpan. Cek koneksi internet.');
+                return false;
+            }
+        }
+
+        // Load from sheets
+        async function loadFromSheets() {
+            showToast('⏳ Memuat data...');
+
+            try {
+                const [incomeRes, expenseRes, shoppingRes] = await Promise.all([
+                    fetch(config.webAppUrl + '?type=income'),
+                    fetch(config.webAppUrl + '?type=expense'),
+                    fetch(config.webAppUrl + '?type=shopping')
+                ]);
+
+                const incomeData = await incomeRes.json();
+                const expenseData = await expenseRes.json();
+                const shoppingData = await shoppingRes.json();
+
+                dataCache.income = incomeData.map(row => ({
+                    date: row[0],
+                    description: row[1],
+                    amount: parseFloat(row[2]) || 0
+                }));
+
+                dataCache.expense = expenseData.map(row => ({
+                    date: row[0],
+                    description: row[1],
+                    amount: parseFloat(row[2]) || 0
+                }));
+
+                dataCache.shopping = shoppingData.map(row => ({
+                    date: row[0],
+                    description: row[1],
+                    amount: parseFloat(row[2]) || 0
+                }));
+
+                updateDisplay();
+                showToast('✅ Data berhasil dimuat!');
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('⚠️ Belum ada data atau koneksi bermasalah');
+                updateDisplay(); // Still update display with cached data
+            }
+        }
+
+        // Form submissions
+        document.getElementById('incomeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                description: document.getElementById('incomeDesc').value,
+                amount: parseFloat(document.getElementById('incomeAmount').value),
+                date: document.getElementById('incomeDate').value
+            };
+
+            showToast('💾 Menyimpan...');
+            const success = await sendToSheets('income', data);
+            
+            if (success) {
+                dataCache.income.push(data);
+                updateDisplay();
+                this.reset();
+                setDefaultDates();
+                showToast('✅ Penjualan tersimpan ke Google Sheets!');
+            }
+        });
+
+        document.getElementById('expenseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                description: document.getElementById('expenseDesc').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                date: document.getElementById('expenseDate').value
+            };
+
+            showToast('💾 Menyimpan...');
+            const success = await sendToSheets('expense', data);
+            
+            if (success) {
+                dataCache.expense.push(data);
+                updateDisplay();
+                this.reset();
+                setDefaultDates();
+                showToast('✅ Pengeluaran tersimpan ke Google Sheets!');
+            }
+        });
+
+        document.getElementById('shoppingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                description: document.getElementById('shoppingItem').value,
+                amount: parseFloat(document.getElementById('shoppingAmount').value),
+                date: document.getElementById('shoppingDate').value
+            };
+
+            showToast('💾 Menyimpan...');
+            const success = await sendToSheets('shopping', data);
+            
+            if (success) {
+                dataCache.shopping.push(data);
+                updateDisplay();
+                this.reset();
+                setDefaultDates();
+                showToast('✅ Belanja tersimpan ke Google Sheets!');
+            }
+        });
+
+        // Update display
+        function updateDisplay() {
+            const totalIncome = dataCache.income.reduce((sum, item) => sum + item.amount, 0);
+            const totalExpense = dataCache.expense.reduce((sum, item) => sum + item.amount, 0);
+            const totalShopping = dataCache.shopping.reduce((sum, item) => sum + item.amount, 0);
+            const balance = totalIncome - totalExpense - totalShopping;
+
+            document.getElementById('totalBalance').textContent = formatCurrency(balance);
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpense').textContent = formatCurrency(totalExpense + totalShopping);
+
+            document.getElementById('totalTransactions').textContent = dataCache.income.length + dataCache.expense.length + dataCache.shopping.length;
+            document.getElementById('incomeCount').textContent = dataCache.income.length;
+            document.getElementById('expenseCount').textContent = dataCache.expense.length;
+            document.getElementById('shoppingCount').textContent = dataCache.shopping.length;
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
